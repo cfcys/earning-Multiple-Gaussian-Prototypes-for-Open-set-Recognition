@@ -2,17 +2,24 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class ResizeConv2d(nn.Module):
+class ResizeConv2d(nn.Module):   # 结合了上采样和卷积操作
 
     def __init__(self, in_channels, out_channels, kernel_size, scale_factor, mode='nearest'):
+        """
+        in_channels,
+        out_channels, 
+        kernel_size, 
+        scale_factor,           # 上采样的比例因子
+        mode='nearest'          # 最近邻插值
+        """
         super().__init__()
         self.scale_factor = scale_factor
         self.mode = mode
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=1)
 
     def forward(self, x):
-        x = F.interpolate(x, scale_factor=self.scale_factor, mode=self.mode)
-        x = self.conv(x)
+        x = F.interpolate(x, scale_factor=self.scale_factor, mode=self.mode)   # 对输入的x进行上采样（一定是上采样？），换句话说就是尽可能保存图像完整的同时把图像变大
+        x = self.conv(x)                                                       #  采样之后加个卷积会更加顺畅一些
         return x
 
 class LateralConv2d(nn.Module):
@@ -26,7 +33,7 @@ class LateralConv2d(nn.Module):
             nn.ReLU(inplace=True),  # prelu leakyrelu
         )
     def forward(self, x):
-        x = self.lateral_conv(x)
+        x = self.lateral_conv(x)  # 输入的特征图x被传递给self.lateral_conv模块进行处理。这包括了依次执行dropout、卷积和ReLU激活函数的操
         return x
 
 class BasicBlockEnc(nn.Module):
@@ -100,7 +107,7 @@ class ResNet18Enc(nn.Module):
         self.layer3 = self._make_layer(BasicBlockEnc, 256, num_Blocks[2], stride=2)
         self.layer4 = self._make_layer(BasicBlockEnc, 512, num_Blocks[3], stride=2)
         self.mu = nn.Linear(512, z_dim)
-        self.logvar = nn.Linear(512, z_dim)
+        self.logvar = nn.Linear(512, z_dim)   
 
     def _make_layer(self, BasicBlockEnc, planes, num_Blocks, stride):
         strides = [stride] + [1]*(num_Blocks-1)
