@@ -66,6 +66,7 @@ class BasicBlockEnc(nn.Module):
 class BasicBlockDec(nn.Module):
 
     def __init__(self, in_planes, stride=1):
+        # in_planes： 输入特征图的数量
         super().__init__()
 
         planes = int(in_planes/stride)
@@ -74,14 +75,14 @@ class BasicBlockDec(nn.Module):
         self.bn2 = nn.BatchNorm2d(in_planes)
         # self.bn1 could have been placed here, but that messes up the order of the layers when printing the class
 
-        if stride == 1:
+        if stride == 1:             # stride=1时候，输入和输出的维度是相同的，！=1时候需要通过ResizeConv2d的操作来调整维度，使得输入和输出可以相加
             self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
             self.bn1 = nn.BatchNorm2d(planes)
             self.shortcut = nn.Sequential()
         else:
             self.conv1 = ResizeConv2d(in_planes, planes, kernel_size=3, scale_factor=stride)
             self.bn1 = nn.BatchNorm2d(planes)
-            self.shortcut = nn.Sequential(
+            self.shortcut = nn.Sequential(    
                 ResizeConv2d(in_planes, planes, kernel_size=3, scale_factor=stride),
                 nn.BatchNorm2d(planes)
             )
