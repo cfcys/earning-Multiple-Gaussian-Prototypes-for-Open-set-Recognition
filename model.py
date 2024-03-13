@@ -5,7 +5,15 @@ from networks import net
 
 
 class MGPLnet(nn.Module):
-    def __init__(self, arch='resnet18', channel=3, latent_dim=128, n_sub_prototypes=3, n_classes=10, temp_inter=0.1, temp_intra=1, init=True):
+    def __init__(self, 
+                 arch='resnet18', 
+                 channel=3, 
+                 latent_dim=128, 
+                 n_sub_prototypes=3, 
+                 n_classes=10, 
+                 temp_inter=0.1, 
+                 temp_intra=1, 
+                 init=True):
         super(MGPLnet, self).__init__()
         self.arch = arch
         self.channel = channel
